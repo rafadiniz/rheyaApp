@@ -1,7 +1,7 @@
 ### RHEYA
 
 ### Implemetation
-RHEYA is an application that works as a audiovisual installation. The application is implemented from computational tools (OpenFrameworks) that explore sound and image synthesis. In this version, the installation should be presented only with monitor or projection and stereo speakers or headphones. RHEYA is a work in progress and should still evolve a lot in other versions, possibly being implemented in VR.
+RHEYA is an application that works as an audiovisual installation. The application is implemented from computational tools (OpenFrameworks) that explore sound and image synthesis. In this version, the installation should be presented only with monitor or projection and stereo speakers or headphones. RHEYA is a work in progress and should still evolve a lot in other versions, possibly being implemented in VR.
 
 see RHEYA excerpts on YouTube: https://youtu.be/LS_J_d0YMuQ
 
