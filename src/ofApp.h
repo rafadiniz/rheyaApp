@@ -66,17 +66,17 @@ class ofApp : public ofBaseApp{
 		string path;
 		string imgT;
 		string images[1005];
-		int sImg3 = 0;
+		int sImg3;
 		int posX, posY;
 		int sizeF;
-		int countF = 0;
+		int countF;
 
-		float dif1 = 1000.0f;
+		float dif1;
 
 
 		//loop ocean set
 		int cols, rows;
-		int scl = 50;
+		int scl;
 	    float vZ[100][100];
 		float shake;
 
@@ -85,28 +85,28 @@ class ofApp : public ofBaseApp{
 		float scount;
 
 		//move's oscillators 
-		float w1  = 0.0f;
-		float sw1 = 0.1f;
-		float h1 = 0.0f;
-		float sh1 = 0.11;
+		float w1;
+		float sw1;
+		float h1;
+		float sh1;
 
 		//globals sound parameters set 
 		float ampOceanF;
-		float SampOceanF = 1.0f;
+		float SampOceanF;
 		float CampOceanF;
 
 		float panOceanF;
-		float SpanOceanF = 1.0f;
+		float SpanOceanF;
 		float CpanOceanF;
 
 		float rheyaPoint;
-		float sRheyaPoint = 0.013f;
+		float sRheyaPoint;
 		float rheyaSize;
-		float sRheyaSize = 0.01f;
+		float sRheyaSize;
 
 		//globals colors parameters set 
-		int alphaAnalyzer = 0;
-		float SalphaAnalyzer = 0.5f;
+		int alphaAnalyzer;
+		float SalphaAnalyzer;
 
 		ofColor cOcean;
 		ofColor cSphere;
@@ -123,11 +123,11 @@ class ofApp : public ofBaseApp{
 		//globals random paramenters set
 		float randP;
 
-		float randfWind = 53.0f;
-		float randfOcean = 71.0f;
-		float randfSphere = 58.0f;
-		float randfRheya = 58.0f;
-		float randpRheya = 49.0f;
+		float randfWind;
+		float randfOcean;
+		float randfSphere;
+		float randfRheya;
+		float randpRheya;
 
 		int frameSave = 0;
 

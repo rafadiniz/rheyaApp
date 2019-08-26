@@ -51,7 +51,7 @@ void ofApp::setup() {
 	ofSetWindowShape(1300, 700);
 	ofBackground(200);
 
-	//primitives resolution set
+	//---------primitives resolution set
 	sphere.setResolution(100);
 	box.setResolution(100);
 
@@ -59,7 +59,7 @@ void ofApp::setup() {
 
 	path = "rheya/rheya";
 
-	//load images
+	//---------load images
 	for (int i = 0; i < 407; i++) {
 
 		if (i >= 0) {
@@ -184,12 +184,38 @@ void ofApp::setup() {
 	panRheya.out_L() >> engine.audio_out(0);
 	panRheya.out_R() >> engine.audio_out(1);
 
-
-	//engine config
+	//---------engine config
 	engine.listDevices();
 	engine.setDeviceID(0); // REMEMBER TO SET THIS AT THE RIGHT INDEX!!!!
 	engine.setup(44100, 512, 3);
 
+	//---------initializing some globals
+	sImg3 = 0;
+	countF = 0;
+
+	dif1 = 1000.0f;
+
+	scl = 50;
+
+	w1 = 0.0f;
+	sw1 = 0.1f;
+	h1 = 0.0f;
+	sh1 = 0.11;
+
+	SampOceanF = 1.0f;
+	SpanOceanF = 1.0f;
+
+	sRheyaPoint = 0.013f;
+	sRheyaSize = 0.01f;
+
+	alphaAnalyzer = 0;
+	SalphaAnalyzer = 0.5f;
+
+	randfWind = 53.0f;
+	randfOcean = 71.0f;
+	randfSphere = 58.0f;
+    randfRheya = 58.0f;
+	randpRheya = 49.0f;
 }
 
 //--------------------------------------------------------------
