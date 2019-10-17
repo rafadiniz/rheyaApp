@@ -39,6 +39,9 @@ class ofApp : public ofBaseApp{
 		void mouseReleased(int x, int y, int button);
 		void mouseEntered(int x, int y);
 
+		//time set
+		time_t rawtime;
+		struct tm * timeinfo;
 
 		//mesh helper functions
 		void addFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c);
@@ -57,8 +60,6 @@ class ofApp : public ofBaseApp{
 		
 		ofColor color1;
 		
-		ofTrueTypeFont type;
-
 		//image to frames
 		ofImage im;
 
@@ -73,8 +74,7 @@ class ofApp : public ofBaseApp{
 
 		float dif1;
 
-
-		//loop ocean set
+        //loop ocean
 		int cols, rows;
 		int scl;
 	    float vZ[100][100];
@@ -90,7 +90,7 @@ class ofApp : public ofBaseApp{
 		float h1;
 		float sh1;
 
-		//globals sound parameters set 
+		//globals sound parameters 
 		float ampOceanF;
 		float SampOceanF;
 		float CampOceanF;
@@ -104,23 +104,24 @@ class ofApp : public ofBaseApp{
 		float rheyaSize;
 		float sRheyaSize;
 
-		//globals colors parameters set 
-		int alphaAnalyzer;
-		float SalphaAnalyzer;
-
+		//globals colors parameters 
 		ofColor cOcean;
 		ofColor cSphere;
 		ofColor cBox;
 		ofColor cVol;
 
+		//start text
+		ofTrueTypeFont      font;
+
 		//boolean objects
+		bool start = false;
+		bool freKey = false;
 		bool ocean = false;
 		bool suns = false;
 		bool rheya = false;
-		bool analyzer = false;
-		
 
-		//globals random paramenters set
+
+		//globals random paramenters
 		float randP;
 
 		float randfWind;
@@ -130,6 +131,16 @@ class ofApp : public ofBaseApp{
 		float randpRheya;
 
 		int frameSave = 0;
+
+		//globals auxiliars
+		int alphaTitle = 200;
+		int alphaEsc = 200;
+		int countEsc;
+		string title;
+		float scaleT;
+		float posXt, posYt;
+
+
 
 		//PDSP instance declaration
 		pdsp::Engine   engine;

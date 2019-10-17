@@ -43,7 +43,6 @@ ofVec3f ofApp::getVertexFromImg(ofFloatImage& img, int x, int y) {
 	return ofVec3f(x, y, 100 * img.getColor(x, y).getBrightness());
 }
 
-
 //--------------------------------------------------------------
 void ofApp::setup() {
 
@@ -51,11 +50,12 @@ void ofApp::setup() {
 	ofSetWindowShape(1300, 700);
 	ofBackground(200);
 
+
 	//---------primitives resolution set
 	sphere.setResolution(100);
 	box.setResolution(100);
 
-	type.loadFont("lucon.ttf", 10);
+	font.loadFont("OCRAStd.otf", 80);
 
 	path = "rheya/rheya";
 
@@ -208,224 +208,262 @@ void ofApp::setup() {
 	sRheyaPoint = 0.013f;
 	sRheyaSize = 0.01f;
 
-	alphaAnalyzer = 0;
-	SalphaAnalyzer = 0.5f;
-
 	randfWind = 53.0f;
 	randfOcean = 71.0f;
 	randfSphere = 58.0f;
     randfRheya = 58.0f;
 	randpRheya = 49.0f;
+
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
+
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
 
 	ocean = true;
-	suns = true;
-	rheya = false;
 
-	randP = ofNoise(ofMap(count, 0.0f, 1000.0f, 50.0f, 100.0f));
+	if (start == true) {
 
-	//sound wind
-	ampControlWind.set(randP);
-	filterControlWind.set(ofMap(randP, 0.0f, 1.0f, randfWind, randfWind + 9.0f));
-	panControlWind.set(ofMap(randP, 0.0f, 1.0f, -1.0f, 1.0f));
-
-	//sound ocean
-	ampControlOcean.set(ofInterpolateCosine(0.2f, 0.8f, ampOceanF));
-	filterControlOcean.set(randfOcean);
-	panControlOcean.set(ofInterpolateCosine(1.0f, -1.0f, panOceanF));
-
-	//sound sphere
-	ampControlSphere.set(0.5f);
-	filterControlSphere.set(randfSphere);
-	ofInterpolateCosine(0.2f, 0.8f, ofMap(h1, 0.0f, 700.0f, 0.0f, 1.0f)) >> ampSphere.in_mod();
-	panControlSphere.set(ofInterpolateCosine(0.5f, -0.5f, ofMap(w1, 0.0f, 1000.0f, 0.0f, 1.0f)));
-	
-	cOcean = ofColor(50, 20);
-	cSphere = ofColor(20, 40);
-
-	count += scount;
-
-	if (count < 0.0f) {
-		count = 1000.0f;
-	}
-	if (count > 1000.0f) {
-		count = 0.0f;
-	};
-	scount = 0.1;
-
-	//time mod of random parameters 
-	int timeRand = ofGetElapsedTimef();
-	int modTRand = timeRand % (8 * 60);
-
-	if (modTRand == 0) {
-		randfWind = 53.0f + ofRandom(-3.0f,3.0f);
-		randfOcean = 71.0f + ofRandom(-3.0f, 3.0f);
-		randfSphere = 58.0f + ofRandom(-3.0f, 3.0f);
-		randfRheya = 58.0f + ofRandom(-3.0f, 3.0f);
-		randpRheya = 49.0f + ofRandom(-3.0f, 3.0f);
-	};
-	
-	//time mod of suns tempest
-	int timeSun = ofGetElapsedTimef();
-	int modTSun = timeSun % (5 * 60);
-
-	if ((modTSun >= 2 * 60) && (modTSun <= 5 * 60)) {
-
+		suns = true;
 		rheya = false;
 
-		pRheya.set(randpRheya);
-		ampControlRheya.set(0.9f);
-		filterControlRheya.set(ofMap(w1, 0.0f, 1000.0f, randfRheya, randfRheya + 36.0f));
-		panControlRheya.set(0);
+		randP = ofNoise(ofMap(count, 0.0f, 1000.0f, 50.0f, 100.0f));
 
-		cSphere = ofColor(
-			ofMap(w1, 0, 1000.0f, 255.0f, 0.0f),
-			ofMap(h1, 0, 700.0f, 255.0f, 0.0f),
-			ofMap(w1, 0, 1000.0f, 0.0f, 255.0f),
-			100);
-		cBox = ofColor(
-			ofMap(h1, 0, 700.0f, 255.0f, 0.0f),
-			ofMap(w1, 0, 1000.0f, 255.0f, 0.0f),
-			ofMap(h1, 0, 700.0f, 0.0f, 255.0f),
-			100);
+		//sound wind
+		ampControlWind.set(randP);
+		filterControlWind.set(ofMap(randP, 0.0f, 1.0f, randfWind, randfWind + 9.0f));
+		panControlWind.set(ofMap(randP, 0.0f, 1.0f, -1.0f, 1.0f));
 
-		cVol = ofColor(ofRandom(255), 200);
+		//sound ocean
+		ampControlOcean.set(ofInterpolateCosine(0.2f, 0.8f, ampOceanF));
+		filterControlOcean.set(randfOcean);
+		panControlOcean.set(ofInterpolateCosine(1.0f, -1.0f, panOceanF));
 
-		ofSetBackgroundAuto(false);
+		//sound sphere
+		ampControlSphere.set(0.5f);
+		filterControlSphere.set(randfSphere);
+		ofInterpolateCosine(0.2f, 0.8f, ofMap(h1, 0.0f, 700.0f, 0.0f, 1.0f)) >> ampSphere.in_mod();
+		panControlSphere.set(ofInterpolateCosine(0.5f, -0.5f, ofMap(w1, 0.0f, 1000.0f, 0.0f, 1.0f)));
 
-	};
-
-	//time mod of dark rain 
-	int timeRain = ofGetElapsedTimef();
-	int modTRain = timeRain % (6 * 60);
-
-	if ((modTRain >= 3 * 60) && (modTRain <= 4 * 60 )) {
-
-		rheya = false;
-
-		//gateRheya.trigger(1.0f);
-		pRheya.set(randpRheya + 36.0f);
-		filterControlRheya.set(randfRheya + 36.0f);
-		panControlRheya.set(0);
-		
-		//gateRev.trigger(ofInterpolateCosine(0.0f, 0.8f, oscF));
-		cSphere = ofColor(ofRandom(255), 210);
-		cBox = ofColor(ofRandom(255));
-		cVol = ofColor(ofRandom(255),150);
-
-		ofSetBackgroundAuto(false);
-
-	};
-
-	//time mod of Rheya composition
-	int timeRheya = ofGetElapsedTimef();
-	int modTRheya = timeRheya % (7 * 60);
-
-	if ((modTRheya >= 4 * 60) && (modTRheya <= 5 * 60 )) {
-
-		pSphere.set(randpRheya + 12);
-		filterControlRheya.set(randfRheya + 12);
-
-		rheya = true;
-
+		cOcean = ofColor(50, 20);
 		cSphere = ofColor(20, 40);
-		cBox = ofColor(100);
-		cVol = ofColor(50, ofRandom(120));
 
-		ofSetBackgroundAuto(true);
-	};
+		count += scount;
 
-
-	//------------------------mov parameters
-	w1 += sw1;
-	if ((w1 > 1000.0f) || (w1 < 0.0f)) {
-		sw1 *= -1;
-	};
-
-	h1 += sh1;
-	if ((h1 > 700.0f) || (h1 < 0.0f)) {
-		sh1 *= -1;
-	};
-
-
-	panOceanF += SpanOceanF * CpanOceanF;
-	if ((panOceanF > 1.0f) || (panOceanF < 0.0f)) {
-		SpanOceanF *= -1.0f;
-	};
-	CpanOceanF = 0.01f;
-
-	ampOceanF += SampOceanF * CampOceanF;
-	if ((ampOceanF > 1.0f) || (ampOceanF < 0.0f)) {
-		SampOceanF *= -1.0f;
-	};
-	CampOceanF = 0.013f;
-
-
-	//time mod of alpha blending of the symbolic graphic analyzer
-	int timeA = ofGetElapsedTimef();
-	int modT = timeA % (10*60);
-
-	if ((modT >= 5*60) && (modT <= 7*60)) {
-		analyzer = true;
-	}
-	else {
-		analyzer = false;
-	};
-
-	//load rheya img
-	im.load(images[sImg3]);
-	
-	//set vertex ocean 
-	shake += ofInterpolateCosine(0.005f, 0.01f, ampOceanF);
-	float yoff = shake;
-	for (int i = 0 ; i < ofGetHeight() / scl + 8; i++) {
-		float xoff = 0.0f;
-		for (int j = 0; j < ofGetWidth() / scl + 25; j++) {
-			vZ[j][i] = ofMap(ofNoise(xoff, yoff), 0, 1, -100, 100);
-			xoff += 0.04f;
+		if (count < 0.0f) {
+			count = 1000.0f;
+		}
+		if (count > 1000.0f) {
+			count = 0.0f;
 		};
-		yoff += 0.05f;
-	};
+		scount = 0.1;
 
+		//time mod of random parameters 
+		int timeRand = ofGetElapsedTimef();
+		int modTRand = timeRand % (8 * 60);
+
+		if (modTRand == 0) {
+			randfWind = 53.0f + ofRandom(-3.0f, 3.0f);
+			randfOcean = 71.0f + ofRandom(-3.0f, 3.0f);
+			randfSphere = 58.0f + ofRandom(-3.0f, 3.0f);
+			randfRheya = 58.0f + ofRandom(-3.0f, 3.0f);
+			randpRheya = 49.0f + ofRandom(-3.0f, 3.0f);
+		};
+
+		//time mod of suns tempest
+		int timeSun = ofGetElapsedTimef();
+		int modTSun = timeSun % (5 * 60);
+
+		if ((modTSun >= 2 * 60) && (modTSun <= 5 * 60)) {
+
+			int timeColorH = ofMap(timeinfo->tm_hour, 5, 19, 0, 255);
+			int timeColorM = ofMap(timeinfo->tm_min, 0, 60, 0, 255);
+			int timeColorS = ofMap(timeinfo->tm_sec, 0, 60, 0, 255);
+
+			rheya = false;
+
+			pRheya.set(randpRheya);
+			ampControlRheya.set(0.9f);
+			filterControlRheya.set(ofMap(w1, 0.0f, 1000.0f, randfRheya, randfRheya + 36.0f));
+			panControlRheya.set(0);
+
+			cSphere = ofColor(
+				timeColorH,
+				timeColorM,
+				ofMap(w1, 0, 1000.0f, 0.0f, 255.0f));
+			cBox = ofColor(
+				timeColorH,
+				timeColorM,
+				ofMap(h1, 0, 700.0f, 0.0f, 255.0f));
+
+			cVol = ofColor(ofRandom(255));
+
+			//ofSetBackgroundAuto(false);
+
+		};
+
+		//time mod of dark rain 
+		int timeRain = ofGetElapsedTimef();
+		int modTRain = timeRain % (6 * 60);
+
+		if ((modTRain >= 3 * 60) && (modTRain <= 4 * 60)) {
+
+			rheya = false;
+
+			//gateRheya.trigger(1.0f);
+			pRheya.set(randpRheya + 36.0f);
+			filterControlRheya.set(randfRheya + 36.0f);
+			panControlRheya.set(0);
+
+			//gateRev.trigger(ofInterpolateCosine(0.0f, 0.8f, oscF));
+			cSphere = ofColor(ofRandom(255), 210);
+			cBox = ofColor(ofRandom(255));
+			cVol = ofColor(ofRandom(255), 150);
+
+			//ofSetBackgroundAuto(false);
+
+		};
+
+		//time mod of Rheya composition
+		int timeRheya = ofGetElapsedTimef();
+		int modTRheya = timeRheya % (7 * 60);
+
+		if ((modTRheya >= 4 * 60) && (modTRheya <= 5 * 60)) {
+
+			pSphere.set(randpRheya + 12);
+			filterControlRheya.set(randfRheya + 12);
+
+			rheya = true;
+
+			cSphere = ofColor(20, 40);
+			cBox = ofColor(100);
+			cVol = ofColor(50, ofRandom(120));
+
+			//ofSetBackgroundAuto(true);
+		};
+
+
+		//------------------------mov parameters
+		w1 += sw1;
+		if ((w1 > 1000.0f) || (w1 < 0.0f)) {
+			sw1 *= -1;
+		};
+
+		h1 += sh1;
+		if ((h1 > 700.0f) || (h1 < 0.0f)) {
+			sh1 *= -1;
+		};
+
+		panOceanF += SpanOceanF * CpanOceanF;
+		if ((panOceanF > 1.0f) || (panOceanF < 0.0f)) {
+			SpanOceanF *= -1.0f;
+		};
+		CpanOceanF = 0.001f;
+
+		ampOceanF += SampOceanF * CampOceanF;
+		if ((ampOceanF > 1.0f) || (ampOceanF < 0.0f)) {
+			SampOceanF *= -1.0f;
+		};
+		CampOceanF = 0.0013f;
+
+		//load rheya img
+		im.load(images[sImg3]);
+
+		//set vertex ocean 
+		shake += ofInterpolateCosine(0.005f, 0.002f, ampOceanF);
+		float yoff = shake;
+		for (int i = 0; i < ofGetHeight() / scl + 8; i++) {
+			float xoff = 0.0f;
+			for (int j = 0; j < ofGetWidth() / scl + 25; j++) {
+				vZ[j][i] = ofMap(ofNoise(xoff, yoff), 0, 1, -100, 100);
+				xoff += 0.04f;
+			};
+			yoff += 0.05f;
+		};
+	}
 }
 
+
 //--------------------------------------------------------------
-void ofApp::draw(){
+void ofApp::draw() {
 
-	//-------------------object analyzer
-	if (analyzer == true) {
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
 
-		ofSetColor(40, 85);
-		ofFill();
-		ofRect(200, 100, ofGetWidth() - 400, ofGetHeight() - 200);
+	int timeColorBackR = ofMap(timeinfo->tm_hour, 5, 19, 255, 0);
+	int timeColorBackB = ofMap(timeinfo->tm_min, 0, 60, 255, 0);
 
-		ofNoFill();
-		ofSetColor(220, 150);
-		ofRect(200, 100, ofGetWidth() - 400, ofGetHeight() - 200);
+	//ofSetColor(timeColorBackR, timeColorBackB,0,100);
+	//ofRect(0, 0, ofGetWidth(), ofGetHeight())
 
-		ofLine(
-			ofMap(randP, 0.0f, 1.0f, 200.0f, ofGetWidth() - 200.0f),
-			100,
-			ofMap(randP, 0.0f, 1.0f, ofGetWidth() - 200.0f, 200.0f),
-			ofGetHeight() - 100
-		);
-		ofLine(
-			ofInterpolateCosine(ofGetWidth() - 200, 200, panOceanF),
-			100,
-			ofInterpolateCosine(ofGetWidth() - 200, 200, panOceanF),
-			ofGetHeight() - 100
-		);
-		ofLine(
-			200,
-			ofInterpolateCosine(100, ofGetHeight() - 100, ampOceanF),
-			ofGetWidth() - 200,
-			ofInterpolateCosine(100, ofGetHeight() - 100, ampOceanF)
-		);
+	for (int i = 0; i < ofGetHeight(); i += 50) {
+		int colorD = ofMap(i, 0, ofGetHeight(), 0, 255);
+		ofSetColor(timeColorBackR, timeColorBackB, timeColorBackB, colorD);
+		ofRect(0, i, ofGetWidth(), 50);
 	};
-	
+
+	ofPushMatrix();
+
+	ofSetColor(20, alphaTitle);
+	ofScale(scaleT);
+	font.drawString(title, posXt, posYt);
+
+	string press = "pressione ENTER para iniciar";
+
+	int timeStart = ofGetElapsedTimef();
+
+	if (timeStart >= 13) {
+		posXt = ofGetWidth() / 0.71;
+		posYt = ofGetHeight()*1.75;
+		scaleT = 0.3f;
+		title = "rafa diniz";
+	}
+
+	if (timeStart >= 5) {
+		posXt = ofGetWidth() / 0.64;
+		title = "2019";
+	}
+	if (timeStart >= 7) {
+		posXt = ofGetWidth() / 3.6f;
+		posYt = ofGetHeight() / 2.8f;
+		scaleT = 1.2f;
+		title = "RHEYA";
+	}
+	if (timeStart >= 10) {
+		ofSetColor(20, alphaTitle);
+		ofScale(0.3);
+		font.drawString(press, ofGetWidth() / 1.25f, 1200);
+		freKey = true;
+		//timeStart = 5;
+	}
+
+	ofPopMatrix();
+
+	if (start == true) {
+
+		countEsc++;
+
+		alphaTitle = 0;
+
+		ofPushMatrix();
+
+		string esc = "para sair pressione ESC";
+		//int timeEsc = ofGetElapsedTimef() - timeStart;
+
+		ofSetColor(20, alphaEsc);
+		ofScale(0.1);
+		font.drawString(esc, 10, 140);
+
+		if (countEsc >= 5 * 60) {
+			alphaEsc = 0;
+		};
+
+		ofPopMatrix();
+	}
+
 	//---------------ocean 
 	if (ocean == true) {
 
@@ -440,14 +478,15 @@ void ofApp::draw(){
 		//ofSetColor(cOcean);
 		ofSetLineWidth(1);
 
-		for (int i = 0; i < ofGetHeight() / scl  + 8; i++) {
+		for (int i = 0; i < ofGetHeight() / scl + 8; i++) {
 			for (int j = 0; j < ofGetWidth() / scl + 25; j++) {
-				ofSetColor(cOcean,ofMap(i, 0, ofGetHeight() / scl + 5, 0,60));
-				ofBox(j*scl , i*scl, vZ[j][i],46,46,46);
+				ofSetColor(cOcean, ofMap(i, 0, ofGetHeight() / scl + 5, 0, 60));
+				ofBox(j*scl + vZ[j][i], i*scl + vZ[j][i], vZ[j][i], 46, 46, 46);
 				//ofBox(j*scl, (i + 1)*scl,vZ[j][i + 1],45,45,45);
 			};
 		};
 		ofPopMatrix();
+
 
 		ofSetColor(100, 150);
 		ofNoFill();
@@ -463,13 +502,14 @@ void ofApp::draw(){
 		ofTranslate(ofGetWidth() / 2 + ofRandom(-2.0f, 2.0f), ofGetHeight() / 2 + ofRandom(-2.0f, 2.0f));
 		ofRotateX(ofMap(w1, 0.0f, 1000.0f, 360, 0));
 		ofRotateZ(ofMap(h1, 0.0f, 700.0f, 360, 0));
-		box.setScale(5 + ofMap(w1, 0, 1000.0f, 5.0f, 1.5f));
+		float timeScaleMs = ofMap(w1, 0, 1000, 5.0f, 1.5f);
+		box.setScale(5 + timeScaleMs);
 		box.drawVertices();
 
 		ofPopStyle();
 		ofPopMatrix();
 	}
-		      
+
 	if (suns == true) {
 
 		//----------------sphere
@@ -480,12 +520,13 @@ void ofApp::draw(){
 		ofSetLineWidth(20);
 
 		ofSetColor(cSphere);
-		ofTranslate(ofGetWidth()/2  + ofRandom(-2.0f, 2.0f), ofGetHeight()/2 + ofRandom(-2.0f, 2.0f));
+		ofTranslate(ofGetWidth() / 2 + ofRandom(-2.0f, 2.0f), ofGetHeight() / 2 + ofRandom(-2.0f, 2.0f));
 		ofRotateX(ofMap(w1, 0.0f, 1000.0f, 360, 0));
 		ofRotateZ(ofMap(h1, 0.0f, 700.0f, 360, 0));
-		sphere.setScale(5 + ofMap(w1, 0.0f, 1000.0f, 0, 8));
+		float timeScaleM = ofMap(timeinfo->tm_hour, 0, 23, 13.0f, 2.0f);
+		sphere.setScale(timeScaleM);
 		sphere.drawVertices();
-	
+
 		ofPopMatrix();
 		ofPopStyle();
 
@@ -505,7 +546,7 @@ void ofApp::draw(){
 		if ((rheyaPoint > 20.0f) || (rheyaPoint < 0.0f)) {
 			sRheyaPoint *= -1;
 		};
-		int skip = 2 +  rheyaPoint;
+		int skip = 2 + rheyaPoint;
 		int width = img.getWidth();
 		int height = img.getHeight();
 		for (int y = 0; y < height - skip; y += skip) {
@@ -529,10 +570,18 @@ void ofApp::draw(){
 		ofEnableDepthTest();
 		mesh.draw();
 		ofDisableDepthTest();
-		
+
 		ofPopMatrix();
 	};
-		
+
+	//fade intro 
+	if (start == true) {
+		ofSetColor(220, 255 - countEsc);
+		ofFill();
+		ofRect(0, 0, ofGetWidth(), ofGetHeight());
+	}
+
+	
 }
 
 //--------------------------------------------------------------
@@ -544,6 +593,11 @@ void ofApp::keyPressed(int key){
 	// 	frameSave++;
 	// 	imageS.saveImage("screen" + ofToString(frameSave) + ".png"); //Save image to file
 	// }
+	if (freKey == true) {
+		if (key == OF_KEY_RETURN) {
+			start = true;
+		}
+	}
 }
 
 //--------------------------------------------------------------
