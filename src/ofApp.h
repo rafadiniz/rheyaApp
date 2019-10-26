@@ -39,10 +39,6 @@ class ofApp : public ofBaseApp{
 		void mouseReleased(int x, int y, int button);
 		void mouseEntered(int x, int y);
 
-		//time set
-		time_t rawtime;
-		struct tm * timeinfo;
-
 		//mesh helper functions
 		void addFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c);
 		void addFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c, ofVec3f d);
@@ -52,6 +48,10 @@ class ofApp : public ofBaseApp{
 		ofFloatImage img;
 		ofVboMesh mesh;
 		ofLight light;
+
+		//shader
+		ofShader shader;
+		bool doShader;
 
 		//primitives
 		ofSpherePrimitive sphere;
@@ -73,6 +73,15 @@ class ofApp : public ofBaseApp{
 		int countF;
 
 		float dif1;
+
+		//real time set
+		time_t rawtime;
+		struct tm * timeinfo;
+
+		int timeSun;
+		int timeRain;
+		int timeRheya;
+		int minRheya;
 
         //loop ocean
 		int cols, rows;
@@ -109,6 +118,7 @@ class ofApp : public ofBaseApp{
 		ofColor cSphere;
 		ofColor cBox;
 		ofColor cVol;
+		ofColor timeColorBack;
 
 		//start text
 		ofTrueTypeFont      font;
@@ -139,8 +149,7 @@ class ofApp : public ofBaseApp{
 		string title;
 		float scaleT;
 		float posXt, posYt;
-
-
+		int sphereStruc;
 
 		//PDSP instance declaration
 		pdsp::Engine   engine;

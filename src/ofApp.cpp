@@ -52,10 +52,12 @@ void ofApp::setup() {
 
 
 	//---------primitives resolution set
-	sphere.setResolution(100);
-	box.setResolution(100);
+	glPointSize(3);
 
-	font.loadFont("OCRAStd.otf", 80);
+	sphere.setResolution(80);
+	box.setResolution(80);
+
+	font.load("OCRAStd.otf", 80);
 
 	path = "rheya/rheya";
 
@@ -77,6 +79,20 @@ void ofApp::setup() {
 		//cout << '\n' << images[i];
 
 	};
+
+	//--------------shader set
+#ifdef TARGET_OPENGLES
+	shader.load("shadersES2/shader");
+#else
+	if (ofIsGLProgrammableRenderer()) {
+		shader.load("shadersGL3/shader");
+	}
+	else {
+		shader.load("shadersGL2/shader");
+	}
+#endif
+
+	doShader = true;
 	
 	//--------pitch controls
 	pSphere.enableSmoothing(50.0f);
@@ -214,18 +230,27 @@ void ofApp::setup() {
     randfRheya = 58.0f;
 	randpRheya = 49.0f;
 
+	sphereStruc = 1;
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 
-
+	//time set
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
 	ocean = true;
 
 	if (start == true) {
+
+		timeColorBack = ofColor(
+			ofMap(timeinfo->tm_min, 0, 60, 255, 0),
+			ofMap(timeinfo->tm_hour, 0, 23, 255, 0),
+			ofMap(timeinfo->tm_wday, 0, 6, 255, 0),
+			255
+		);
 
 		suns = true;
 		rheya = false;
@@ -250,6 +275,7 @@ void ofApp::update() {
 
 		cOcean = ofColor(50, 20);
 		cSphere = ofColor(20, 40);
+		cBox = ofColor(240, 20);
 
 		count += scount;
 
@@ -262,24 +288,26 @@ void ofApp::update() {
 		scount = 0.1;
 
 		//time mod of random parameters 
-		int timeRand = ofGetElapsedTimef();
-		int modTRand = timeRand % (8 * 60);
+		//int timeRand = ofGetElapsedTimef();
+		//int modTRand = timeRand % (8 * 60);
 
-		if (modTRand == 0) {
-			randfWind = 53.0f + ofRandom(-3.0f, 3.0f);
-			randfOcean = 71.0f + ofRandom(-3.0f, 3.0f);
-			randfSphere = 58.0f + ofRandom(-3.0f, 3.0f);
+		if (timeinfo->tm_mday == 0) {
+			randfWind = 53.0f + ofMap(timeinfo->tm_mday, 0.0f, 7.0f, -8.0f, 8.0f);
+			randfOcean = 71.0f + ofMap(timeinfo->tm_mday, 0.0f, 14.0f, -8.0f, 8.0f);
+			randfSphere = 58.0f + ofMap(timeinfo->tm_mday, 0.0f, 19.0f, -8.0f, 8.0f);
 			randfRheya = 58.0f + ofRandom(-3.0f, 3.0f);
 			randpRheya = 49.0f + ofRandom(-3.0f, 3.0f);
+
+			timeSun = ofRandom(0, 12);
+			timeRain = ofRandom(0, 22);
+			timeRheya = ofRandom(0, 23);
+			minRheya = ofRandom(0, 30);
 		};
 
 		//time mod of suns tempest
-		int timeSun = ofGetElapsedTimef();
-		int modTSun = timeSun % (5 * 60);
-
-		if ((modTSun >= 2 * 60) && (modTSun <= 5 * 60)) {
-
-			int timeColorH = ofMap(timeinfo->tm_hour, 5, 19, 0, 255);
+		if ((timeinfo->tm_hour < timeSun + 4) && (timeinfo->tm_hour > timeSun - 1)) {
+				
+			int timeColorH = ofMap(timeinfo->tm_hour, 0, 24, 10, 205);
 			int timeColorM = ofMap(timeinfo->tm_min, 0, 60, 0, 255);
 			int timeColorS = ofMap(timeinfo->tm_sec, 0, 60, 0, 255);
 
@@ -293,11 +321,15 @@ void ofApp::update() {
 			cSphere = ofColor(
 				timeColorH,
 				timeColorM,
-				ofMap(w1, 0, 1000.0f, 0.0f, 255.0f));
+				ofMap(w1, 0, 1000.0f, 0.0f, 255.0f),
+				100
+			);
 			cBox = ofColor(
 				timeColorH,
 				timeColorM,
-				ofMap(h1, 0, 700.0f, 0.0f, 255.0f));
+				ofMap(h1, 0, 700.0f, 0.0f, 255.0f),
+				100
+			);
 
 			cVol = ofColor(ofRandom(255));
 
@@ -306,19 +338,16 @@ void ofApp::update() {
 		};
 
 		//time mod of dark rain 
-		int timeRain = ofGetElapsedTimef();
-		int modTRain = timeRain % (6 * 60);
-
-		if ((modTRain >= 3 * 60) && (modTRain <= 4 * 60)) {
+		if ((timeinfo->tm_hour < timeRain + 1) && (timeinfo->tm_hour > timeRain - 1)) {
 
 			rheya = false;
 
-			//gateRheya.trigger(1.0f);
-			pRheya.set(randpRheya + 36.0f);
-			filterControlRheya.set(randfRheya + 36.0f);
+			pRheya.set(randpRheya + 66.0f);
+			filterControlRheya.set(randfRheya +66.0f);
 			panControlRheya.set(0);
 
-			//gateRev.trigger(ofInterpolateCosine(0.0f, 0.8f, oscF));
+			timeColorBack = ofColor(ofRandom(255),200);
+			
 			cSphere = ofColor(ofRandom(255), 210);
 			cBox = ofColor(ofRandom(255));
 			cVol = ofColor(ofRandom(255), 150);
@@ -328,20 +357,19 @@ void ofApp::update() {
 		};
 
 		//time mod of Rheya composition
-		int timeRheya = ofGetElapsedTimef();
-		int modTRheya = timeRheya % (7 * 60);
+		if ((timeinfo->tm_hour < timeRheya + 1) && (timeinfo->tm_hour > timeRheya - 1)) {
 
-		if ((modTRheya >= 4 * 60) && (modTRheya <= 5 * 60)) {
+			cout << minRheya << endl;
+			if ((timeinfo->tm_min > minRheya - 1) && (timeinfo->tm_min < minRheya + 15)) {
+				pSphere.set(randpRheya + 12);
+				filterControlRheya.set(randfRheya + 12);
 
-			pSphere.set(randpRheya + 12);
-			filterControlRheya.set(randfRheya + 12);
+				rheya = true;
 
-			rheya = true;
-
-			cSphere = ofColor(20, 40);
-			cBox = ofColor(100);
-			cVol = ofColor(50, ofRandom(120));
-
+				cSphere = ofColor(20, 40);
+				cBox = ofColor(100);
+				cVol = ofColor(50, ofRandom(120));
+			}
 			//ofSetBackgroundAuto(true);
 		};
 
@@ -383,26 +411,21 @@ void ofApp::update() {
 			};
 			yoff += 0.05f;
 		};
-	}
-}
-
+	};
+};
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 
+	//-----------time set local
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	int timeColorBackR = ofMap(timeinfo->tm_hour, 5, 19, 255, 0);
-	int timeColorBackB = ofMap(timeinfo->tm_min, 0, 60, 255, 0);
 
-	//ofSetColor(timeColorBackR, timeColorBackB,0,100);
-	//ofRect(0, 0, ofGetWidth(), ofGetHeight())
-
-	for (int i = 0; i < ofGetHeight(); i += 50) {
+	for (int i = -timeinfo->tm_sec ; i < ofGetHeight() + timeinfo->tm_sec; i += 50) {
 		int colorD = ofMap(i, 0, ofGetHeight(), 0, 255);
-		ofSetColor(timeColorBackR, timeColorBackB, timeColorBackB, colorD);
-		ofRect(0, i, ofGetWidth(), 50);
+		ofSetColor(timeColorBack, colorD);
+		ofDrawRectangle(0, i, ofGetWidth(), 50);
 	};
 
 	ofPushMatrix();
@@ -415,7 +438,7 @@ void ofApp::draw() {
 
 	int timeStart = ofGetElapsedTimef();
 
-	if (timeStart >= 13) {
+	if (timeStart >= 3) {
 		posXt = ofGetWidth() / 0.71;
 		posYt = ofGetHeight()*1.75;
 		scaleT = 0.3f;
@@ -424,7 +447,7 @@ void ofApp::draw() {
 
 	if (timeStart >= 5) {
 		posXt = ofGetWidth() / 0.64;
-		title = "2019";
+		title = "2020";
 	}
 	if (timeStart >= 7) {
 		posXt = ofGetWidth() / 3.6f;
@@ -443,23 +466,37 @@ void ofApp::draw() {
 	ofPopMatrix();
 
 	if (start == true) {
-
+		
 		countEsc++;
 
 		alphaTitle = 0;
 
 		ofPushMatrix();
+         
+		ofSetColor(10, alphaEsc);
+		ofDrawRectangle(0, 0, 200, 20);
 
 		string esc = "para sair pressione ESC";
 		//int timeEsc = ofGetElapsedTimef() - timeStart;
-
-		ofSetColor(20, alphaEsc);
+		ofSetColor(240, alphaEsc);
 		ofScale(0.1);
-		font.drawString(esc, 10, 140);
+		font.drawString(esc, 50, 140);
 
 		if (countEsc >= 5 * 60) {
 			alphaEsc = 0;
 		};
+
+		//numbers in loop
+		ofPushMatrix();
+		ofScale(1.5);
+		for (int i = 10; i < ofGetWidth() * 8; i += 500) {
+			for (int h = 10; h < ofGetHeight() * 8; h += 200) {
+				int aphaN = ofMap(h, 10, ofGetHeight()*8, 40, 15);
+				ofSetColor(20, aphaN);
+				font.drawString(ofToString(i+h + timeinfo->tm_sec), i, h);
+			}
+		}
+		ofPopMatrix();
 
 		ofPopMatrix();
 	}
@@ -472,7 +509,7 @@ void ofApp::draw() {
 		ofPushMatrix();
 
 		ofTranslate(ofGetWidth() - 600, ofGetHeight());
-		ofRotateX(105);
+		ofRotateXDeg(105);
 		ofTranslate(-ofGetWidth(), -ofGetHeight());
 
 		//ofSetColor(cOcean);
@@ -481,7 +518,7 @@ void ofApp::draw() {
 		for (int i = 0; i < ofGetHeight() / scl + 8; i++) {
 			for (int j = 0; j < ofGetWidth() / scl + 25; j++) {
 				ofSetColor(cOcean, ofMap(i, 0, ofGetHeight() / scl + 5, 0, 60));
-				ofBox(j*scl + vZ[j][i], i*scl + vZ[j][i], vZ[j][i], 46, 46, 46);
+				ofDrawBox(j*scl + vZ[j][i], i*scl + vZ[j][i], vZ[j][i], 46, 46, 46);
 				//ofBox(j*scl, (i + 1)*scl,vZ[j][i + 1],45,45,45);
 			};
 		};
@@ -494,25 +531,42 @@ void ofApp::draw() {
 
 		//-----------------box
 
+		if (doShader) {
+			shader.begin();
+			//we want to pass in some varrying values to animate our type / color 
+			shader.setUniform1f("time", ofGetElapsedTimef() * 1.1);
+			//shader.setUniform1f("time", -ofGetElapsedTimef() * 5.18);
+		}
+
 		ofPushStyle();
 		ofPushMatrix();
 
 		ofSetLineWidth(20);
 		ofSetColor(cBox);
 		ofTranslate(ofGetWidth() / 2 + ofRandom(-2.0f, 2.0f), ofGetHeight() / 2 + ofRandom(-2.0f, 2.0f));
-		ofRotateX(ofMap(w1, 0.0f, 1000.0f, 360, 0));
-		ofRotateZ(ofMap(h1, 0.0f, 700.0f, 360, 0));
+		ofRotateXDeg(ofMap(w1, 0.0f, 1000.0f, 360, 0));
+		ofRotateZDeg(ofMap(h1, 0.0f, 700.0f, 360, 0));
 		float timeScaleMs = ofMap(w1, 0, 1000, 5.0f, 1.5f);
 		box.setScale(5 + timeScaleMs);
 		box.drawVertices();
 
 		ofPopStyle();
 		ofPopMatrix();
+
+		if (doShader) {
+			shader.end();
+		}
 	}
 
 	if (suns == true) {
 
 		//----------------sphere
+		if (doShader) {
+			shader.begin();
+			//we want to pass in some varrying values to animate our type / color 
+			shader.setUniform1f("time", ofGetElapsedTimef() * 1.1);
+			//shader.setUniform1f("time", -ofGetElapsedTimef() * 5.18);
+		}
 
 		ofPushStyle();
 		ofPushMatrix();
@@ -521,14 +575,26 @@ void ofApp::draw() {
 
 		ofSetColor(cSphere);
 		ofTranslate(ofGetWidth() / 2 + ofRandom(-2.0f, 2.0f), ofGetHeight() / 2 + ofRandom(-2.0f, 2.0f));
-		ofRotateX(ofMap(w1, 0.0f, 1000.0f, 360, 0));
-		ofRotateZ(ofMap(h1, 0.0f, 700.0f, 360, 0));
+		ofRotateXDeg(ofMap(w1, 0.0f, 1000.0f, 360, 0));
+		ofRotateZDeg(ofMap(h1, 0.0f, 700.0f, 360, 0));
 		float timeScaleM = ofMap(timeinfo->tm_hour, 0, 23, 13.0f, 2.0f);
 		sphere.setScale(timeScaleM);
-		sphere.drawVertices();
-
+		if (sphereStruc == 0) {
+			sphere.drawFaces();
+		}
+		if (sphereStruc == 1) {
+			sphere.drawVertices();
+		}
+		if (sphereStruc == 2) {
+			sphere.drawWireframe();
+		}
+		
 		ofPopMatrix();
 		ofPopStyle();
+
+		if (doShader) {
+			shader.end();
+		}
 
 	};
 
@@ -578,9 +644,8 @@ void ofApp::draw() {
 	if (start == true) {
 		ofSetColor(220, 255 - countEsc);
 		ofFill();
-		ofRect(0, 0, ofGetWidth(), ofGetHeight());
+		ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 	}
-
 	
 }
 
@@ -597,6 +662,13 @@ void ofApp::keyPressed(int key){
 		if (key == OF_KEY_RETURN) {
 			start = true;
 		}
+	}
+
+	if (key == 's') {
+		doShader = !doShader;
+	}
+	if (key == 'r') {
+		sphereStruc = ofRandom(0,3);
 	}
 }
 
