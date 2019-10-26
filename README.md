@@ -1,7 +1,7 @@
 ### RHEYA
 
 ### Implemetation
-RHEYA is an [openFrameworks](https://openframeworks.cc/) science fiction software. The application is implemented from computational tools that explore sound and image synthesis. RHEYA is a work in progress and should still evolve a lot in other versions, possibly being implemented in VR.
+RHEYA is an [openFrameworks](https://openframeworks.cc/) science fiction software. The application is implemented from computational tools that explore sound and image synthesis. RHEYA is being implemented to respond to time of day, weekdays, and months. Thus, depending on these, sound and image parameters and events will have specific characteristics reactive to them. RHEYA is a work in progress and should still evolve a lot in other versions, possibly being implemented in VR.
 
 see RHEYA excerpts on YouTube: https://youtu.be/FcQWM-ibmqU
 
